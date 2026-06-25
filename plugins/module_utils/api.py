@@ -6,6 +6,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from ansible.errors import AnsibleParserError
 import requests
 import json
 
@@ -73,7 +74,13 @@ class ItopApi(object):
             }
         )
 
-        return response.json()
+        itop_data = response.json()
+        if itop_data['code'] != 0:
+            raise AnsibleParserError(
+                f"Query error { itop_data['code'] }: { itop_data['message'] }"
+            )
+
+        return itop_data
 
 
     def request(self, _operation, _class=None, _key=None, _output_fields=None, _page=None, _limit=None):
@@ -107,4 +114,10 @@ class ItopApi(object):
             }
         )
 
-        return response.json()
+        itop_data = response.json()
+        if itop_data['code'] != 0:
+            raise AnsibleParserError(
+                f"Query error { itop_data['code'] }: { itop_data['message'] }"
+            )
+
+        return itop_data
