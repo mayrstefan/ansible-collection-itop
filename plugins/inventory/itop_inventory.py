@@ -146,13 +146,80 @@ class InventoryModule(BaseInventoryPlugin, Constructable):
                 f"Query error { itop_data['code'] }: { itop_data['message'] }"
             )
 
+        # reserverd variable names must not be used as host variables
+        # from https://docs.ansible.com/projects/ansible/latest/reference_appendices/playbooks_keywords.html#playbook-keywords
+        reserved = (
+            'always',
+            'any_errors_fatal',
+            'args',
+            'async',
+            'become',
+            'become_exe',
+            'become_flags',
+            'become_method',
+            'become_user',
+            'block',
+            'changed_when',
+            'check_mode',
+            'collections',
+            'connection',
+            'debugger',
+            'delay',
+            'delegate_facts',
+            'delegate_to',
+            'diff',
+            'environment',
+            'fact_path',
+            'failed_when',
+            'force_handlers',
+            'gather_facts',
+            'gather_subset',
+            'gather_timeout',
+            'handlers',
+            'hosts',
+            'ignore_errors',
+            'ignore_unreachable',
+            'local_action',
+            'loop',
+            'loop_control',
+            'max_fail_percentage',
+            'module_defaults',
+            'name',
+            'no_log',
+            'notify',
+            'order',
+            'poll',
+            'port',
+            'post_tasks',
+            'pre_tasks',
+            'register',
+            'remote_user',
+            'rescue',
+            'retries',
+            'roles',
+            'run_once',
+            'serial',
+            'strategy',
+            'tags',
+            'tasks',
+            'throttle',
+            'timeout',
+            'until',
+            'validate_argspec',
+            'vars',
+            'vars_files',
+            'vars_prompt',
+            'when'
+        )
         for server in itop_data['objects']:
             inventory_hostname = itop_data['objects'][server]['fields']['name']
 
             obj_Host = inventory.add_host(host=inventory_hostname, group='all')
 
             for k in itop_data['objects'][server]['fields']:
-                inventory.set_variable(obj_Host, k, itop_data['objects'][server]['fields'][k])
+                inventory.set_variable(obj_Host, f'itop_{ k }', itop_data['objects'][server]['fields'][k])
+                if k not in reserved:
+                    inventory.set_variable(obj_Host, k, itop_data['objects'][server]['fields'][k])
                 
             # Get variables for compose
             variables = self.inventory.hosts[inventory_hostname].get_vars()
