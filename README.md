@@ -36,37 +36,36 @@ Exemples rapides d'utilisation dans un playbook :
 
 ```yaml
 - name: Get configuration item info from iTop
-	hosts: localhost
-	collections:
-		- lacrif.itop
-	tasks:
-		- name: Fetch CI info
-			configuration_item_info:
-				name: "Server01"
-			register: ci_info
+  hosts: localhost
+  tasks:
+    - name: Fetch CI info
+      lacrif.itop.configuration_item_info:
+        class_name: "Server"
+        key: "SELECT Server FROM Server WHERE name = 'Server01'"
+      register: ci_info
 
-		- debug:
-				var: ci_info
+    - ansible.builtin.debug:
+        var: ci_info
 ```
 
 - Créer ou mettre à jour un élément de configuration :
 
 ```yaml
 - name: Create or update CI in iTop
-	hosts: localhost
-	collections:
-		- lacrif.itop
-	tasks:
-		- name: Ensure CI exists
-			configuration_item:
-				name: "Server01"
-				type: "Server"
-				attributes:
-					description: "Serveur géré par Ansible"
-			register: result
+  hosts: localhost
+  tasks:
+    - name: Ensure CI exists
+      lacrif.itop.configuration_item:
+        class_name: "Server"
+        key:
+          name: "Server01"
+        fields:
+          description: "Serveur géré par Ansible"
+        comment: "Mise à jour de la description avec Ansible"
+      register: result
 
-		- debug:
-				var: result
+    - ansible.builtin.debug:
+        var: result
 ```
 
 - Utiliser le plugin d'inventaire `itop_inventory` :
